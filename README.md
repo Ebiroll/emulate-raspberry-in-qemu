@@ -121,7 +121,7 @@ qemu-system-aarch64  \
     -d unimp,guest_errors  \
     -trace "bcm*" \
     -sd 2022-09-22-raspios-bullseye-arm64-lite.img \
-    -m 4GB -smp 4 \
+    -m 2G -smp 4 \
     -usb -device usb-mouse -device usb-kbd \
 	 -device usb-net,netdev=net0 \
 	 -netdev user,id=net0,hostfwd=tcp::5555-:22
