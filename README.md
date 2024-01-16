@@ -1,6 +1,13 @@
 # emulate-raspberry-in-qemu
 Notes and scripts to start an emulated raspberry-pi in qemu
 
+# Build qemu
+Enable slirp for usermode
+
+apt-get install libslirp-dev
+
+../configure --disable-werror --enable-debug --enable-slirp 
+
 Some info from here, https://www.marcusfolkesson.se/categories/qemu/
 
 Board support
@@ -114,17 +121,33 @@ qemu-system-aarch64 \
 Not integrated into qemu yet, here is a version of qemu that supports that 
 https://github.com/U007D/qemu 
 
+We can try a newer kernel here,
+wget https://downloads.raspberrypi.org/raspios_lite_arm64/images/raspios_lite_arm64-2023-12-11/2023-12-11-raspios-bookworm-arm64-lite.img.xz
+
+
+
 qemu-system-aarch64  \
     -M raspi4b  \
+    -cpu cortex-a72 \
     -kernel kernel8.img \
--append "rw dwc_otg.lpm_enable=0 earlyprintk  loglevel=8 console=ttyAMA0,115200 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline rootwait ip=192.168.10.2" \
+    -append "console=serial0,115200 console=tty1 root=PARTUUID=4e639091-02 rootfstype=ext4 fsck.repair=yes rootwait quiet init=/usr/lib/raspberrypi-sys-mods/firstboot rootwait ip=192.168.10.2" \
     -d unimp,guest_errors  \
     -trace "bcm*" \
-    -sd 2022-09-22-raspios-bullseye-arm64-lite.img \
+    -dtb bcm2711-rpi-4-b.dtb \
+    -sd 2023-12-11-raspios-bookworm-arm64-lite.img \
     -m 2G -smp 4 \
     -usb -device usb-mouse -device usb-kbd \
 	 -device usb-net,netdev=net0 \
 	 -netdev user,id=net0,hostfwd=tcp::5555-:22
+
+# Kernel panic
+We could get kernelpanic when mounting the resized image
+Kernel panic - not syncing VFS Unable to mount root fs on unknown-block(179,2)
+
+Make sure to check boot/cmdline.txt to match -append arguments
+
+Give it some time... With trace it starts even more slowly.
+Also file system check might take a very long time.
 
 
 # U-boot
@@ -154,6 +177,7 @@ grep YYLTYPE  *
    gdb-multiarch u-boot -ex'target extended-remote:1234'
 
 Make sure you add -S -s when staring up qemu
+and change  -kernel to u-boot.elf
 
 
 
@@ -162,6 +186,10 @@ Make sure you add -S -s when staring up qemu
 https://www.rpi4os.com/
 
 Not tested with qemu yet.
+
+# QNX
+
+https://forums.openqnx.com/t/topic/47479/3
 
 
 
