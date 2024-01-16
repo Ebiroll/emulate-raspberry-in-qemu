@@ -125,17 +125,19 @@ We can try a newer kernel here,
 wget https://downloads.raspberrypi.org/raspios_lite_arm64/images/raspios_lite_arm64-2023-12-11/2023-12-11-raspios-bookworm-arm64-lite.img.xz
 
 
+https://github.com/raspberrypi/linux/issues/4900
 
 qemu-system-aarch64  \
     -M raspi4b  \
     -cpu cortex-a72 \
     -kernel kernel8.img \
-    -append "console=serial0,115200 console=tty1 root=PARTUUID=4e639091-02 rootfstype=ext4 fsck.repair=yes rootwait quiet init=/usr/lib/raspberrypi-sys-mods/firstboot rootwait ip=192.168.10.2" \
+    -append "earlycon=pl011,mmio32,0xfe201000 console=serial0,115200 console=tty1 root=PARTUUID=4e639091-02 rootfstype=ext4 fsck.repair=yes rootwait quiet init=/usr/lib/raspberrypi-sys-mods/firstboot rootwait ip=192.168.10.2" \
     -d unimp,guest_errors  \
     -trace "bcm*" \
     -dtb bcm2711-rpi-4-b.dtb \
     -sd 2023-12-11-raspios-bookworm-arm64-lite.img \
     -m 2G -smp 4 \
+    -serial stdio \
     -usb -device usb-mouse -device usb-kbd \
 	 -device usb-net,netdev=net0 \
 	 -netdev user,id=net0,hostfwd=tcp::5555-:22
