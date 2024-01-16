@@ -93,8 +93,7 @@ Everything is now ready for start QEMU. The parameters are quite self-explained
 
    qemu-system-aarch64 \
        -M raspi3b \
-       -cpu cortex-a52 \
-       -append "rw earlyprintk earlycon=pl011,mmio32,0xfe201000 loglevel=8 console=ttyAMA0,115200 root=/dev/mmcblk0p2 rootdelay=1" \
+       -append "rw earlyprintk loglevel=8 console=ttyAMA0,115200 root=/dev/mmcblk0p2 rootdelay=1" \
        -serial stdio \
        -dtb  bcm2710-rpi-3-b-plus.dtb \
        -sd ./2022-09-22-raspios-bullseye-arm64-lite.img \
