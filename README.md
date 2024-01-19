@@ -11,50 +11,67 @@ apt-get install libslirp-dev
 Some info from here, https://www.marcusfolkesson.se/categories/qemu/
 
 Board support
-QEMU provides models of the following Raspberry Pi Boards:
 
-Machine	Core	Number of cores	RAM
-   raspi0	ARM1176JZF-S  	1	512 MiB
-   raspi1lap	ARM1176JZF-S	1	512 MiB
-   raspi2b	Coretx-A7	4	1 GB
-   raspi3ap	Cortex-A53	4	512 MiB
-   Raspi3b	Cortex-A53	4	1 GB
+QEMU provides models of the following Raspberry Pi Boards:
+| Machine      | Core          | Number of Cores | RAM     |
+|--------------|---------------|-----------------|---------|
+| raspi0       | ARM1176JZF-S  | 1               | 512 MiB |
+| raspi1lap    | ARM1176JZF-S  | 1               | 512 MiB |
+| raspi2b      | Cortex-A7     | 4               | 1 GB    |
+| raspi3ap     | Cortex-A53    | 4               | 512 MiB |
+| Raspi3b      | Cortex-A53    | 4               | 1 GB    |
    
 Device support
 QEMU provides support for the following devices:
 
-ARM1176JZF-S, Cortex-A7 or Cortex-A53 CPU
-Interrupt controller
-DMA controller
-Clock and reset controller (CPRMAN)
-System Timer
-GPIO controller
-Serial ports (BCM2835 AUX - 16550 based - and PL011)
-Random Number Generator (RNG)
-Frame Buffer
-USB host (USBH)
-GPIO controller
-SD/MMC host controller
-SoC thermal sensor
-USB2 host controller (DWC2 and MPHI)
-MailBox controller (MBOX)
-VideoCore firmware (property)
+- ARM1176JZF-S, Cortex-A7 or Cortex-A53 CPU
+
+- Interrupt controller
+
+- DMA controller
+
+- Clock and reset controller (CPRMAN)
+
+- System Timer
+
+- GPIO controller
+
+- Serial ports (BCM2835 AUX - 16550 based - and PL011)
+
+- Random Number Generator (RNG)
+
+- Frame Buffer
+
+- USB host (USBH)
+
+- GPIO controller
+
+- SD/MMC host controller
+
+- SoC thermal sensor
+
+- USB2 host controller (DWC2 and MPHI)
+
+- MailBox controller (MBOX)
+
+- VideoCore firmware (property)
+
 However, it still lacks support for these:
 
-Peripheral SPI controller (SPI)
-Analog to Digital Converter (ADC)
-Pulse Width Modulation (PWM)
-Set it up
+   Peripheral SPI controller (SPI)
+   Analog to Digital Converter (ADC)
+   Pulse Width Modulation (PWM)
+## Set it up
 Prerequisites
 You will need to have qemu-system-aarch64, you could either build it from source [2] or let your Linux distribution install it for you.
 
 If you are using Arch Linux, then you could use pacman
 
-sudo pacman -Sy qemu-system-aarch64
+   sudo pacman -Sy qemu-system-aarch64
 You will also need to do download and extract the Raspian image you want to use
 
-wget https://downloads.raspberrypi.org/raspios_lite_arm64/images/raspios_lite_arm64-2022-09-26/2022-09-22-raspios-bullseye-arm64-lite.img.xz
-unxz 2022-09-22-raspios-bullseye-arm64-lite.img.xz
+   wget https://downloads.raspberrypi.org/raspios_lite_arm64/images/raspios_lite_arm64-2022-09-26/2022-09-22-raspios-bullseye-arm64-lite.img.xz
+   unxz 2022-09-22-raspios-bullseye-arm64-lite.img.xz
 Loopback mount image
 The image could be loopback mounted in order to extract the kernel and devicetree. First we need to figure out the first free loopback device
 
@@ -79,8 +96,8 @@ Copy kernel and dtb
    
 If you have any modification you want to do on the root filesystem, do it now before we unmount everything.
 
-sudo umount ./boot/
-sudo umount ./rootfs/
+   sudo umount ./boot/
+   sudo umount ./rootfs/
 
 # Resize image
 QEMU requires the image size to be a power of 2, so resize the image to 2GB
@@ -122,7 +139,7 @@ Not integrated into qemu yet, here is a version of qemu that supports that
 https://github.com/U007D/qemu 
 
 We can try a newer kernel here,
-wget https://downloads.raspberrypi.org/raspios_lite_arm64/images/raspios_lite_arm64-2023-12-11/2023-12-11-raspios-bookworm-arm64-lite.img.xz
+   wget https://downloads.raspberrypi.org/raspios_lite_arm64/images/raspios_lite_arm64-2023-12-11/2023-12-11-raspios-bookworm-arm64-lite.img.xz
 But it turns out to be a bad idea, instead we reuse the 2022-09-22-raspios-bullseye-arm64-lite.img image
 Make sure to extract 
 
@@ -139,10 +156,17 @@ qemu-system-aarch64  \
     -dtb bcm2711-rpi-4-b.dtb \
     -sd 2022-09-22-raspios-bullseye-arm64-lite.img \
     -m 2G -smp 4 \
-    -serial stdio \
+    -serial tcp::12344,server,nowait -serial tcp::12345,server,nowait \
     -usb -device usb-mouse -device usb-kbd \
 	 -device usb-net,netdev=net0 \
 	 -netdev user,id=net0,hostfwd=tcp::5555-:22
+
+# Attach to uart,
+nc 127.0.0.1 12344
+nc 127.0.0.1 12345
+
+Optionally use -serial stdio
+
 
   
 Give it some time... With trace it starts even more slowly.
@@ -346,6 +370,7 @@ https://www.rpi4os.com/
 Not tested with qemu yet.
 
 # QNX
+Regarding serial
 
 https://forums.openqnx.com/t/topic/47479/3
 
