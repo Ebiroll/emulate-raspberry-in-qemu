@@ -75,25 +75,32 @@ You will also need to do download and extract the Raspian image you want to use
 Loopback mount image
 The image could be loopback mounted in order to extract the kernel and devicetree. First we need to figure out the first free loopback device
 
+```
    sudo losetup -f
    /dev/loop0
+```
 Then we could use that device to mount:
 
+```
    sudo losetup /dev/loop0  ./2022-09-22-raspios-bullseye-armh64-lite.img  -P
+```
 The -P option force the kernel to scan the partition table. As the sector size of the image is 512 bytes we could omit the --sector-size.
 
 # Mount the boot partition and root filesystem
-
+```
    mkdir ./boot ./rootfs
    sudo mount /dev/loop0p1 ./boot/
    sudo mount /dev/loop0p2 ./rootfs/
+```
    
 Copy kernel and dtb
 
+```
    cp boot/bcm2710-rpi-3-b.dtb .
    cp boot/kernel8.img .
    cp boot/kernel.img .
-   
+```
+
 If you have any modification you want to do on the root filesystem, do it now before we unmount everything.
 
    sudo umount ./boot/
