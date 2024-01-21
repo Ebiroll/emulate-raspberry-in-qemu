@@ -1,9 +1,14 @@
 
 # Install ubuntu from WSL
 
+More info here,
+https://wiki.archlinux.org/title/QEMU
+
 # Install WSL
 
 Alpine,  apk add qemu qemu-img qemu-system-x86_64 qemu-ui-gtk
+
+Clipboard sharing spice-vdagent
 
 Ubuntu,
 
@@ -14,6 +19,8 @@ vmx flags       : vnmi invvpid ept_x_only ept_ad ept_1gb tsc_offset vtpr ept vpi
 
 
 # Install VM
+
+You might want to get Lubuntu https://lubuntu.me/downloads/
 
 cp /mnt/c/Users/XXX/Downloads/ubuntu-22.04.3-desktop-amd64.iso .
 
@@ -56,18 +63,6 @@ Alpine  info
 https://wiki.alpinelinux.org/wiki/QEMU
 
 
-
-# apt-get install libguestfs-tools
-
-Find out the file systems inside the image that need to be updated.
-
-# guestfish -a ubuntu.qcow2 -i
-
-
-Better to use loopback and create raw sd image
-
-Next free
-  losetup -f
 
 
 
