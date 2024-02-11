@@ -200,6 +200,23 @@ qemu-system-aarch64  \
 	 -device usb-net,netdev=net0 \
 	 -netdev user,id=net0,hostfwd=tcp::5555-:22
 
+
+/home/olas/work/qemu-stm32/rasp/qemu-system-aarch64  \
+    -M raspi4b  \
+    -cpu cortex-a72 \
+    -kernel boot-files/framebuffer.elf \
+    -append "earlycon=pl011,mmio32,0xfe201000 console=ttyAMA0,115200 console=tty1  rootfstype=ext4 fsck.repair=yes rootwait quiet rootwait ip=192.168.10.2" \
+    -d unimp,guest_errors  \
+    -trace "bcm*" \
+    -dtb bcm2711-rpi-4-b.dtb \
+    -sd 2022-09-22-raspios-bullseye-arm64-lite.img \
+    -m 2G -smp 4 \
+    -serial tcp::12344,server,nowait -serial tcp::12345,server,nowait \
+    -usb -device usb-mouse -device usb-kbd \
+	 -device usb-net,netdev=net0 \
+	 -netdev user,id=net0,hostfwd=tcp::5555-:22
+
+
 # Attach to uart,
 nc 127.0.0.1 12344
 nc 127.0.0.1 12345
@@ -406,7 +423,24 @@ and change  -kernel to u-boot.elf
 
 https://www.rpi4os.com/
 
-Not tested with qemu yet.
+The example 
+boot-files/framebuffer.elf
+boot-files/miniuart.elf
+
+Are build from this repo
+
+# Toolchain 
+cd download
+
+
+https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads
+
+tar xvf  /mnt/c/Users/XXX/Downloads/arm-gnu-toolchain-13.2.rel1-x86_64-aarch64-none-elf.tar.xz
+
+https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain
+
+/mnt/c/Users/olof.astrand/work/emulate-raspberry-in-qemu/rpi4-osdev/download/arm-gnu-toolchain-13.2.R
+el1-x86_64-aarch64-none-elf/bin/aarch64-none-elf-c++
 
 # QNX
 Regarding serial
