@@ -75,6 +75,8 @@ You will also need to do download and extract the Raspian image you want to use
 Loopback mount image
 The image could be loopback mounted in order to extract the kernel and devicetree. First we need to figure out the first free loopback device
 
+
+
 ```
    sudo losetup -f
    /dev/loop0
@@ -85,6 +87,36 @@ Then we could use that device to mount:
    sudo losetup /dev/loop0  ./2022-09-22-raspios-bullseye-armh64-lite.img  -P
 ```
 The -P option force the kernel to scan the partition table. As the sector size of the image is 512 bytes we could omit the --sector-size.
+
+# Fresh disk for use in qemu
+
+dd if=/dev/zero of=disk.img bs=1M count=1000
+
+We make a boot only disk 
+
+Other options
+
+```
+ sudo losetup --show -Pf ./disk.img
+ /dev/loop1
+ # if WSL does not report the parttions
+ sudo fdisk /dev/loop1
+ Then press p
+
+# Graphical, allows right click on file
+sudo apt-get update
+sudo apt-get install gnome-disk-utility
+```
+# Boot example
+In the directory boot-files are the Ubuntu server boot files.
+The READNE explains what the files are.
+
+To make a u-boot script
+   apt install u-boot-tools
+   mkimage -A arm -O linux -T script -C none -a 0 -e 0 -n "Boot Script" -d boot.cmd boot-files/boot.scr
+
+
+
 
 # Mount the boot partition and root filesystem
 ```
