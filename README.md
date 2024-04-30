@@ -275,6 +275,7 @@ Now it should be setup to go.
 You can experiment alittle here,
 And also repair disk
 sudo e2fsck /dev/loop0p2
+```
 
 ![image](https://github.com/Ebiroll/emulate-raspberry-in-qemu/assets/8543484/0bd8cda2-c119-42b5-a314-d6216acfba47)
 
@@ -442,6 +443,7 @@ and change  -kernel to u-boot.elf
 
 
 # Bare metal raspi
+See earlier example of how to invoke.
 
 https://www.rpi4os.com/
 
@@ -452,17 +454,17 @@ boot-files/miniuart.elf
 Are build from this repo
 
 # Toolchain 
+```
 cd download
-
 
 https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads
 
 tar xvf  /mnt/c/Users/XXX/Downloads/arm-gnu-toolchain-13.2.rel1-x86_64-aarch64-none-elf.tar.xz
 
 https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain
-
-/mnt/c/Users/olof.astrand/work/emulate-raspberry-in-qemu/rpi4-osdev/download/arm-gnu-toolchain-13.2.R
+../download/arm-gnu-toolchain-13.2.R
 el1-x86_64-aarch64-none-elf/bin/aarch64-none-elf-c++
+```
 
 # QNX
 Regarding serial
