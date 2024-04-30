@@ -147,6 +147,7 @@ Very note that this will lose data if you make the image smaller than it current
 Wrap it up
 Everything is now ready for start QEMU. The parameters are quite self-explained
 
+```
    qemu-system-aarch64 \
        -M raspi3b \
        -append "rw earlyprintk loglevel=8 console=ttyAMA0,115200 root=/dev/mmcblk0p2 rootdelay=1" \
@@ -155,11 +156,29 @@ Everything is now ready for start QEMU. The parameters are quite self-explained
        -sd ./2022-09-22-raspios-bullseye-arm64-lite.img \
        -kernel kernel8.img \
        -m 1G -smp 4
+```
+For network support
+       -device usb-net,netdev=net0 -netdev user,id=net0,hostfwd=tcp::5555-:22 \
+	-nographic
     
 # Here we go
 
    raspberrypi login: pi
    Password: raspberry
+
+This might not work for newer versions. Default user is disabled.
+Instead, 
+```
+Generate an encrypted password
+$ echo 'password' | openssl passwd -6 -stdin
+(The output of this command is an encrypted version of the password, necessary for the next step)
+
+sudo nano boot/userconf.txt
+Type your crendentials in it, following the format username:encrypted_password.
+Press Ctrl+S to save and Ctrl+X to exit.
+
+```
+
    
    Linux raspberrypi 5.10.103-v8+ #1529 SMP PREEMPT Tue Mar 8 12:26:46 GMT 2022 aarch64
 
@@ -170,6 +189,49 @@ Everything is now ready for start QEMU. The parameters are quite self-explained
    Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
    permitted by applicable law.
    pi@raspberrypi:~$
+
+# Once logged in
+
+```
+
+Start the cfdisk utility
+
+$ sudo cfdisk /dev/mmcblk0
+(/dev/mmcblk0 is the device file of the SD card on the Raspberry Pi 3. The cfdisk utility allows us to modify the partitions on the SD card)
+In the utility, you can use the up and down arrow keys to navigate the partitions, and the side arrow keys to navigate the options.
+Select the /dev/mmcblk0p2 partition and Resize it to fill the available space.
+(The default given size should be just fine.)
+
+If therer are filesystem errors online resize might not work and you can poweroof and do filesustem check.
+e2fsck /dev/loop???
+
+Save changes with Write, then Quit.
+
+Resize the file system
+
+$ sudo resize2fs /dev/mmcblk0p2
+Shutdown and restart the VM
+
+$ sudo shutdown now
+```
+
+To Update the VM's system
+
+```
+$ sudo apt update && sudo apt upgrade
+(Note: The internet connection within the VM is very slow, and this will take a long time.)
+```
+## Use raspi-config to configure the system
+```
+$ sudo raspi-config
+(This tool enables you to configure your locale, keyboard layout, hostname, password, as well as turn on SSH server, and more)
+To access the VM from the host machine using SSH
+Make sure that you have enabled the SSH server through the raspi-config utility.
+
+$ ssh username@localhost -p 5555
+(5555 being the forward port configured for the VM in the launch command.)
+If you intend to change the VM's ssh server port, make sure to change the forwarded port (from 22) in the launch command as well.
+```
 
 
 # Raspberry pi 4 b
