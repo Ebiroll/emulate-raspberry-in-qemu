@@ -236,16 +236,64 @@ If you intend to change the VM's ssh server port, make sure to change the forwar
 
 # Raspberry pi 4 b
 
-Not integrated into qemu yet, here is a version of qemu that supports that 
+qemu 9.0.0 Now has support
 https://github.com/U007D/qemu 
 
 We can try a newer kernel here,
    wget https://downloads.raspberrypi.org/raspios_lite_arm64/images/raspios_lite_arm64-2023-12-11/2023-12-11-raspios-bookworm-arm64-lite.img.xz
 But it turns out to be a bad idea, instead we reuse the 2022-09-22-raspios-bullseye-arm64-lite.img image
-Make sure to extract 
+Make sure to extract as described earlier
+```
+ sudo losetup /dev/loop0  ./2023-12-11-raspios-bookworm-arm64-lite.img  -P
+ sudo mount /dev/loop0p1 boot
+cat boot/cmdline.txt
+console=serial0,115200 console=tty1 root=PARTUUID=4e639091-02 rootfstype=ext4 fsck.repair=yes rootwait quiet init=/usr/lib/raspberrypi-sys-mods/firstboot
+
+cp boot/bcm2711-rpi-* .
+cp boot/initramfs8 .
+cp boot/kernel8.img .
+sudo umount boot
+```
+
 
 
 https://github.com/raspberrypi/linux/issues/4900
+
+Firstboot
+This generates ssh keys and then reboots
+```
+ ./qemu-system-aarch64 -M raspi4b  -kernel kernel8.img -append "console=serial0,115200 console=tty1 root=PARTUUID=4e639091-02 rootfstype=ext4 fsck.repair=yes rootwait quiet init=/usr/lib/raspberrypi-sys-mods/firstboot" -initrd initramfs8 -d unimp,guest_errors -trace "bcm*" -dtb bcm2711-rpi-cm4.dtb -sd 2023-12-11-raspios-bookworm-arm64-lite.img  -serial tcp::12344,server,nowait -serial tcp::12345,server,nowait
+```
+
+Now it should be setup to go.
+
+
+```
+./qemu-system-aarch64 -M raspi4b  -kernel kernel8.img -append "console=serial0,115200 console=tty1 root=PARTUUID=4e639091-02 rootfstype=ext4 fsck.repair=yes rootwait quiet"   -initrd initramfs8 -d unimp,guest_errors -trace "bcm*" -dtb bcm2711-rpi-cm4.dtb -sd 2023-12-11-raspios-bookworm-arm64-lite.img  -serial stdio
+
+```
+You can experiment alittle here,
+And also repair disk
+sudo e2fsck /dev/loop0p2
+
+![image](https://github.com/Ebiroll/emulate-raspberry-in-qemu/assets/8543484/0bd8cda2-c119-42b5-a314-d6216acfba47)
+
+
+
+You can also try the framebuffer example 
+qemu-system-aarch64 -kernel boot-files/framebuffer.elf  -M raspi4b  -d unimp,guest_errors      -trace "bcm*"
+
+And miniuart
+```
+/qemu-system-aarch64 -kernel boot-files/miniuart.elf  -M raspi4b  -d unimp,guest_errors      -trace "bcm*"  -serial tcp::12344,server,nowait -serial tcp::12345,server -serial stdio
+
+nc 127.0.0.1 12345
+Hello world!
+apa
+apa
+```
+
+Old try with other version
 
 qemu-system-aarch64  \
     -M raspi4b  \
@@ -290,94 +338,6 @@ Optionally use -serial stdio
 Give it some time... With trace it starts even more slowly.
 Also file system check might take a very long time.
 
-
-# Kernel panic
-We could get kernelpanic when mounting the resized image, root=/dev/mmcblk1p2
-Kernel panic - not syncing VFS Unable to mount root fs on unknown-block(179,2)
-   [    6.350264] of_cfs_init: OK
-   [    6.383446] mmc1: host does not support reading read-only switch, assuming write-enable
-   [    6.392895] mmc1: new high speed SDHC card at address 4567
-   [    6.418818] mmcblk1: mmc1:4567 QEMU! 4.00 GiB
-   [    6.487458] mmcblk1: mmc1:4567 QEMU! 4.00 GiB
-
-
-```
-2023-12-11-raspios-bookworm-arm64-lite.img
-
-[  126.580914] Warning: unable to open an initial console.
-[  126.615750] /dev/root: Can't open blockdev
-[  126.618640] VFS: Cannot open root device "mmcblk1p2" or unknown-block(179,2): error -6
-[  126.622386] Please append a correct "root=" boot option; here are the available partitions:
-[  126.626772] 0100            4096 ram0
-[  126.627328]  (driver?)
-[  126.636391] 0101            4096 ram1
-[  126.636642]  (driver?)
-[  126.636943] 0102            4096 ram2
-[  126.637141]  (driver?)
-[  126.637286] 0103            4096 ram3
-[  126.637400]  (driver?)
-[  126.637524] 0104            4096 ram4
-[  126.637634]  (driver?)
-[  126.655402] 0105            4096 ram5
-[  126.655554]  (driver?)
-[  126.660600] 0106            4096 ram6
-[  126.660732]  (driver?)
-[  126.663148] 0107            4096 ram7
-[  126.663282]  (driver?)
-[  126.667267] 0108            4096 ram8
-[  126.667403]  (driver?)
-[  126.670132] 0109            4096 ram9
-[  126.670408]  (driver?)
-[  126.673442] 010a            4096 ram10
-[  126.673575]  (driver?)
-[  126.675608] 010b            4096 ram11
-[  126.676526]  (driver?)
-[  126.679183] 010c            4096 ram12
-[  126.679388]  (driver?)
-[  126.684054] 010d            4096 ram13
-[  126.684194]  (driver?)
-[  126.688778] 010e            4096 ram14
-[  126.688937]  (driver?)
-[  126.691296] 010f            4096 ram15
-[  126.691448]  (driver?)
-[  126.694245] b300         4194304 mmcblk1
-[  126.694502]  driver: mmcblk
-[  126.697987] Kernel panic - not syncing: VFS: Unable to mount root fs on unknown-block(179,2)
-[  126.702327] CPU: 3 PID: 1 Comm: swapper/0 Not tainted 6.1.0-rpi7-rpi-v8 #1  Debian 1:6.1.63-1+rpt1
-[  126.707621] Hardware name: Raspberry Pi 4 Model B (DT)
-[  126.710857] Call trace:
-[  126.712641]  dump_backtrace.part.0+0xec/0x100
-[  126.714594]  show_stack+0x20/0x30
-[  126.716409]  dump_stack_lvl+0x88/0xb4
-[  126.718293]  dump_stack+0x18/0x34
-[  126.719731]  panic+0x1a0/0x370
-[  126.721242]  mount_block_root+0x194/0x240
-[  126.722158]  mount_root+0x210/0x24c
-[  126.722993]  prepare_namespace+0x138/0x178
-[  126.724814]  kernel_init_freeable+0x29c/0x2c8
-[  126.726976]  kernel_init+0x2c/0x140
-[  126.728394]  ret_from_fork+0x10/0x20
-[  126.730900] SMP: stopping secondary CPUs
-[  126.733465] Kernel Offset: disabled
-[  126.733956] CPU features: 0x80000,2003c080,0000421b
-[  126.735082] Memory Limit: none
-[  126.736666] ---[ end Kernel panic - not syncing: VFS: Unable to mount root fs on unknown-block(179,2) ]---
-
-When trying an older kernel and removing  init=/usr/lib/raspberrypi-sys-mods/firstboot 
- and changing in append to root=/dev/mmcblk0p2
-
-[    0.000000] Booting Linux on physical CPU 0x0000000000 [0x410fd083]
-[    0.000000] Linux version 5.15.61-v8+ (dom@buildbot) (aarch64-linux-gnu-gcc-8 (Ubuntu/Linaro 8.4.0-3ubuntu1) 8.4.0, GNU ld (GNU Binutils for Ubuntu) 2.34) #1579 SMP PREEMPT Fri Aug 26 11:16:44 BST 2022
-[    0.000000] Machine model: Raspberry Pi 4 Model B
-[    0.000000] earlycon: pl11 at MMIO32 0x00000000fe201000 (options '')
-[    0.000000] printk: bootconsole [pl11] enabled
-
-
-[    7.183858] of_cfs_init: OK
-[    7.216110] mmc1: host does not support reading read-only switch, assuming write-enable
-[    7.221825] mmc1: new high speed SDHC card at address 4567
-[    7.239435] mmcblk1: mmc1:4567 QEMU! 4.00 GiB
-[    7.298046]  mmcblk1: p1 p2
 
 olas@raspberrypi:~$ cat /proc/cpuinfo
 processor       : 0
