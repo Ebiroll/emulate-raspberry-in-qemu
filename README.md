@@ -269,13 +269,14 @@ Now it should be setup to go.
 
 
 ```
-./qemu-system-aarch64 -M raspi4b  -kernel kernel8.img -append "console=serial0,115200 console=tty1 root=PARTUUID=4e639091-02 rootfstype=ext4 fsck.repair=yes rootwait quiet"   -initrd initramfs8 -d unimp,guest_errors -trace "bcm*" -dtb bcm2711-rpi-cm4.dtb -sd 2023-12-11-raspios-bookworm-arm64-lite.img  -serial stdio
+./qemu-system-aarch64 -M raspi4b  -kernel kernel8.img -append "console=serial0,115200 console=tty1 root=PARTUUID=4e639091-02 rootfstype=ext4 fsck.repair=yes rootwait quiet" \
+  -initrd initramfs8 -d unimp,guest_errors -trace "bcm*" -dtb bcm2711-rpi-cm4.dtb \
+  -sd 2023-12-11-raspios-bookworm-arm64-lite.img  -serial stdio
 
 ```
 You can experiment alittle here,
 And also repair disk
 sudo e2fsck /dev/loop0p2
-```
 
 ![image](https://github.com/Ebiroll/emulate-raspberry-in-qemu/assets/8543484/0bd8cda2-c119-42b5-a314-d6216acfba47)
 
