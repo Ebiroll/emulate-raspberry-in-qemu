@@ -20,6 +20,7 @@ QEMU provides models of the following Raspberry Pi Boards:
 | raspi2b      | Cortex-A7     | 4               | 1 GB    |
 | raspi3ap     | Cortex-A53    | 4               | 512 MiB |
 | Raspi3b      | Cortex-A53    | 4               | 1 GB    |
+| Raspi4b      | Cortex-A72    | 4               | 2 GB    |
    
 Device support
 QEMU provides support for the following devices:
@@ -262,24 +263,40 @@ https://github.com/raspberrypi/linux/issues/4900
 Firstboot
 This generates ssh keys and then reboots
 ```
- ./qemu-system-aarch64 -M raspi4b  -kernel kernel8.img -append "console=serial0,115200 console=tty1 root=PARTUUID=4e639091-02 rootfstype=ext4 fsck.repair=yes rootwait quiet init=/usr/lib/raspberrypi-sys-mods/firstboot" -initrd initramfs8 -d unimp,guest_errors -trace "bcm*" -dtb bcm2711-rpi-cm4.dtb -sd 2023-12-11-raspios-bookworm-arm64-lite.img  -serial tcp::12344,server,nowait -serial tcp::12345,server,nowait
+ ./qemu-system-aarch64 -M raspi4b  -kernel kernel8.img -append "console=serial0,115200 console=tty1 root=PARTUUID=4e639091-02 rootfstype=ext4 fsck.repair=yes rootwait quiet init=/usr/lib/raspberrypi-sys-mods/firstboot" -initrd initramfs8 -d unimp,guest_errors -trace "bcm*" -dtb bcm2711-rpi-4-b.dtb -sd 2023-12-11-raspios-bookworm-arm64-lite.img  -serial tcp::12344,server,nowait -serial tcp::12345,server,nowait
 ```
 
 Now it should be setup to go.
 
 
+Replace  root=PARTUUID=4e639091-02 with root=/dev/mmcblk0p2 
 ```
-./qemu-system-aarch64 -M raspi4b  -kernel kernel8.img -append "console=serial0,115200 console=tty1 root=PARTUUID=4e639091-02 rootfstype=ext4 fsck.repair=yes rootwait quiet" \
-  -initrd initramfs8 -d unimp,guest_errors -trace "bcm*" -dtb bcm2711-rpi-cm4.dtb \
-  -sd 2023-12-11-raspios-bookworm-arm64-lite.img  -serial stdio
+./qemu-system-aarch64 -M raspi4b  -kernel kernel8.img -append "console=serial0,115200 console=tty1 root=/dev/mmcblk0p2  rootfstype=ext4 fsck.repair=no rootwait quiet" \
+  -initrd initramfs8 -d unimp,guest_errors -trace "bcm*" -dtb bcm2711-rpi-4-b.dtb \
+  -sd 2023-12-11-raspios-bookworm-arm64-lite.img  -serial tcp::12345,server,nowait -serial stdio
 
 ```
-You can experiment alittle here,
+You can experiment a little here,
 And also repair disk
 sudo e2fsck /dev/loop0p2
 
 ![image](https://github.com/Ebiroll/emulate-raspberry-in-qemu/assets/8543484/0bd8cda2-c119-42b5-a314-d6216acfba47)
 
+
+To be investigated
+```
+bcm2835_cprman_read offset:0x98 value:0x200
+bcm2835_cprman_read offset:0xa0 value:0x200
+bcm2835_cprman_read offset:0x88 value:0x0
+bcm2835_aux_write: unsupported attempt to enable SPI or disable UART: 0x0
+bcm2838-asb: unimplemented device read  (size 4, offset 0x20)
+SD: Unknown CMD52 for spec v2.00
+SD: Unknown CMD52 for spec v2.00
+SD: Unknown CMD5 for spec v2.00
+SD: Unknown CMD5 for spec v2.00
+SD: Unknown CMD5 for spec v2.00
+SD: Unknown CMD5 for spec v2.00
+```
 
 
 You can also try the framebuffer example 
