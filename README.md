@@ -256,6 +256,26 @@ cp boot/kernel8.img .
 sudo umount boot
 ```
 
+OK, after some tweaking, it booted.
+```
+
+
+
+
+```
+./qemu-system-aarch64 -M raspi4b  -kernel kernel8.img -append "earlycon=pl011,mmio32,0xfe201000 console=ttyAMA0,115200 root=/dev/mmcblk1p2 rootfstype=ext4 fsck.repair=no rootwait" -d unimp,guest_errors -trace "sd*" -sd 2022-09-22-raspios-bullseye-arm64-lite.img  -dtb bcm2711-rpi-4-b.dtb -serial tcp::12344,server  -serial tcp::12345,server,nowait
+
+```
+
+Boot into single user mode
+./qemu-system-aarch64 -M raspi4b  -kernel kernel8.img -append "earlycon=pl011,mmio32,0xfe201000 console=ttyAMA0,115200 root=/dev/mmcblk1p2 rootfstype=ext4 fsck.repair=no rootwait init=/bin/bash"  -sd 2022-09-22-raspios-bullseye-arm64-lite.img  -dtb bcm2711-rpi-4-b.dtb -serial tcp::12344,server  -serial tcp::12345,server,nowait
+
+ -initrd initramfs8 
+
+
+Use this 
+nc 127.0.0.1 12344
+```
 
 
 https://github.com/raspberrypi/linux/issues/4900
