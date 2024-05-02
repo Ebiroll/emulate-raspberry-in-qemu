@@ -502,7 +502,17 @@ tar xvf  /mnt/c/Users/XXX/Downloads/arm-gnu-toolchain-13.2.rel1-x86_64-aarch64-n
 https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain
 ../download/arm-gnu-toolchain-13.2.R
 el1-x86_64-aarch64-none-elf/bin/aarch64-none-elf-c++
-```
+
+# Links
+sd-card
+https://www.haiku-os.org/docs/develop/busses/sdhci/sdhci_mmc_driver.html
+
+# Images
+https://www.raspberrypi.com/software/operating-systems/#raspberry-pi-os-64-bit
+
+# Serial ports
+
+https://docs.bitscope.com/pi-serial/
 
 # QNX
 Regarding serial
